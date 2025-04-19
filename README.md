@@ -1,263 +1,116 @@
-﻿# LokiCat.GodotNodeInterfaces.Observables
+﻿# LokiCat.Godot.R3.ObservableSignals
 
-> **Generate R3 Observables from Chickensoft.GodotNodeInterfaces signals**
+**R3-compatible source generator for turning ********`[Signal]`******** delegates in Godot C# into cached ********`Observable<T>`******** properties.**
 
-![NuGet](https://img.shields.io/nuget/v/LokiCat.GodotNodeInterfaces.Observables?label=NuGet)
-[![CI](https://github.com/fahall/LokiCat.GodotNodeInterfaces.Observables/actions/workflows/release.yml/badge.svg)](https://github.com/fahall/LokiCat.GodotNodeInterfaces.Observables/actions/workflows/release.yml)
-
----
-
-## Overview
-
-This project provides a **Roslyn source generator** that automatically creates [R3](https://github.com/Cysharp/R3) observable extensions for each signal exposed by the [`Chickensoft.GodotNodeInterfaces`](https://github.com/chickensoft-games/godot-node-interfaces) interfaces.
-
-You get strongly typed, composable observables that make it easy to work with Godot signals in a reactive way using R3.
-
-### Why bother?
-
-1. We want to program to Interfaces (see: [Chickensoft.GodotNodeInterfaces](https://github.com/chickensoft-games/GodotNodeInterfaces))
-2. We want to use Reactive X style Observables for signal management (see: [R3](https://github.com/Cysharp/R3) )
-3. [R3](https://github.com/Cysharp/R3) provides a limited set of preconfigured Observable wrappers
-4. LokiCat.GodotNodeInterfaces.Observables: Now we can have Rx & program to interfaces without having to write wrappers every time!
-
-Lets look at an example:
-
-Lets say you have a menu that uses a button `IBaseButton`, and you want to use an Observable for the `Toggled` signal of that button.
-
-#### Pure C# Events w/ GodotNodeInterface
-* :white_check_mark: We get the behavior we want. 
-2. :x: We have to manage the subscription and unsubscription ourselves. 
-3. :x: We want ReactiveX
-
-```csharp
-public partial class MyMenu : Control, IControl {
-    
-    private IBaseButton doSomethingButton;
-
-    public void OnReady() {
-       doSomethingButton.Pressed += DoSomething;
-    }
-    
-    public void OnExitTree() {
-        // We have to remember to unsubscribe. 
-        // Not difficult, but easy to forget when managing behavior in multiple places.
-        doSomething.Pressed -= DoSomething;    
-    }
-    
-    private void DoSomething(bool isToggledOn) { /* Do stuff */ }
-}
-```
-
-#### Using an R3 Observable
-Here, we're using R3 to manually wrap our events into Observables
-
-* :white_check_mark: We get the behavior we want.
-* :white_check_mark: Only manage it in one place
-* :white_check_mark: We have ReactiveX
-* :x: Observable takes quite a few lines to setup
-* :x: Some of the Godot EventHandler types involve more casting than this example.
-
-```csharp
-public partial class MyMenu : Control, IControl {
-    
-    private IBaseButton doSomethingButton;
-    
-    public void OnReady() {
-       Observable.FromEvent<ToggledEventHandler, bool>(
-           h => (toggledOn) => h(toggledOn), // We could use a lambda here, if we wanted.
-           h => doSomethingButton.Toggled += h,
-           h => doSomethingButton.Toggled -= h,
-           cancellationToken // Optional
-       ).Subscribe(DoSomething)
-       .AddTo(this); // Cleanup happens here now. Yay!
-    }
-    
-    private void DoSomething(bool isToggledOn) { /* Do stuff */ }
-}
-```
-
-#### Using LokiCat.GodotNodeInterfaces.Observables
-* :white_check_mark: We get the behavior we want.
-* :white_check_mark: Only manage it in one place
-* :white_check_mark: We have ReactiveX
-* :white_check_mark: Observables ready-to-use
-* :white_check_mark: No explicit casting to fiddle with or extra code to write
-* :white_check_mark: We can use lambdas too!
-
-```csharp
-public partial class MyMenu : Control, IControl {
-    
-    private IBaseButton doSomethingButton;
-    
-    public void OnReady() {
-       doSomethingButton.OnPressedAsObservable() 
-           .Subscribe(DoSomething) 
-           .AddTo(this); 
-    }
-    
-    private void DoSomething(bool isToggledOn) { /* Do stuff */ }
-}
-
-```
-
+This package eliminates boilerplate when wiring up Godot's `[Signal]` system to R3's reactive observables. It generates cached, lazily-connected observables for every `[Signal]` delegate in your partial Godot classes.
 
 ---
 
 ## ✨ Features
 
-- 🔧 **Zero config**: Just install the package and observe away.
-- ⚡ **Automatic discovery** of all signals defined in `Chickensoft.GodotNodeInterfaces`.
-- 🧪 Fully tested generator logic.
-- 🧵 Handles custom delegate signal types (like `ButtonPressedEventHandler`).
-- 📦 Designed for `.NET 7+`, compatible with Godot 4.x C# projects.
+- Automatically detects `[Signal]`-annotated delegate declarations in Godot C# scripts
+- Generates type-safe `Observable<T>` or `Observable<(T1, T2, ...)>` properties
+- Supports 0 to 5 parameters
+- Emits clean diagnostic warnings for `[Signal]` delegates with more than 5 parameters
+- Requires no manual wiring or `Observable.Create` logic
+- Complies with `.editorconfig` and follows your R3 usage patterns
+- Output is fully compatible with `AddTo(this)` disposal and R3 pipelines
 
 ---
 
 ## 📦 Installation
 
-Install via NuGet:
+1. Add this NuGet package to your project:
 
-```bash
-dotnet add package LokiCat.GodotNodeInterfaces.Observables
+```sh
+dotnet add package LokiCat.Godot.R3.ObservableSignals
 ```
 
----
-
-## 🔌 Usage
-
-No setup is required. Once the package is installed, the source generator will run during build and add extension methods for each interface's signals.
-
-You can observe any Godot signal (from the Chickensoft interfaces) like so:
+2. Ensure your Godot node classes are marked `partial`, and your `[Signal]` delegates are defined inside the class:
 
 ```csharp
-public partial class MyNode : Node2D {
-  public override void _Ready() {
-    this.OnPressedAsObservable()
-      .Subscribe(_ => GD.Print("Pressed!"));
-  }
+public partial class VisionCone2D : Node2D {
+  [Signal]
+  public delegate void BodyEnteredEventHandler(Node body);
 }
 ```
 
-The method name pattern is:
+3. Build your project. The generator will automatically emit:
 
 ```csharp
-On[SignalName]AsObservable()
+private Observable<Node> _onBodyEntered;
+public Observable<Node> OnBodyEntered =>
+  this.Signal(nameof(BodyEntered), ref _onBodyEntered);
 ```
 
-These methods are automatically added to the interface types like `IButton`, `IArea2D`, etc.
-
-Each observable uses the signal's native delegate (including custom Godot signal delegate types), and returns `Observable<T>` where `T` is:
-
-- The signal parameter type (if 1 parameter)
-- A tuple `(T1, T2, ...)` (if multiple parameters)
-- `Unit` (if no parameters)
-
----
-
-## 🧪 Examples
-
-### Observing `Pressed` from `IButton`
+You can now subscribe:
 
 ```csharp
-button.OnPressedAsObservable()
-  .Subscribe(_ => GD.Print("Button was pressed"));
-```
-
-### Observing `MouseEntered` from `IArea2D`
-
-```csharp
-area.OnMouseEnteredAsObservable()
-  .Subscribe(_ => ShowTooltip());
-```
-
-### Observing complex signal with parameters
-
-For a signal like:
-
-```csharp
-event InputEventEventHandler(Godot.Node viewport, Godot.InputEvent @event, long shapeIdx);
-```
-
-Generated observable extension:
-
-```csharp
-collision.OnInputEventAsObservable()
-  .Subscribe(tuple => {
-    var (viewport, evt, shapeIdx) = tuple;
-    GD.Print($"Input received on shape {shapeIdx}");
-  });
-```
-
-### Composing observables with R3
-
-```csharp
-button.OnPressedAsObservable()
-  .ThrottleFirst(TimeSpan.FromMilliseconds(500))
-  .Subscribe(_ => GD.Print("Throttled click!"));
+visionCone.OnBodyEntered
+  .Subscribe(body => GD.Print($"Entered: {body.Name}"))
+  .AddTo(this);
 ```
 
 ---
 
-## ⚙️ Dependencies
+## ✅ Supported Signal Forms
 
-- [.NET 7+](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
-- [R3](https://github.com/Cysharp/R3)
-- [Chickensoft.GodotNodeInterfaces](https://github.com/chickensoft-games/godot-node-interfaces)
+| Signal form                          | Generated Observable type       |
+| ------------------------------------ | ------------------------------- |
+| `delegate void Something()`          | `Observable<Unit>`              |
+| `delegate void Something(Node)`      | `Observable<Node>`              |
+| `delegate void Something(Node, int)` | `Observable<(Node, int)>`       |
+| ... up to 5 args                     | `Observable<(T1, T2, ..., T5)>` |
 
----
-
-## 🧱 How It Works
-
-- Uses Roslyn source generation to discover every `event` declared in `Chickensoft.GodotNodeInterfaces` interfaces.
-- Ignores inherited events (to avoid duplicate generation).
-- Generates extension methods per event with exact types.
-- Handles custom Godot signal delegates with correct constructor/parameter logic.
-
-All source is generated at compile time and added to your build transparently.
+> Signals with **6+ arguments** will trigger a diagnostic warning and be skipped.
 
 ---
 
-## 🧪 Tests
+## 🧠 How It Works
 
-Tests cover:
+- The generator looks for `[Signal]` delegate declarations inside partial classes.
+- For each signal, it emits a `private Observable<T>?` field and a `public Observable<T>` property.
+- It uses the `Signal(...)` extension method (also emitted by the generator) to wrap `Godot.Connect(...)` with `Observable.Create(...)`.
+- The generated observables are cached and lazily initialized on first access.
 
-- Events with 0, 1, or many parameters
-- Delegates with and without constructors
-- Namespace resolution
-- Method name and return type formatting
+---
 
-You can run tests locally:
+## 🛠 Example: Full Class
 
-```bash
-dotnet test
+```csharp
+public partial class ButtonGroup : Node {
+  [Signal]
+  public delegate void PressedEventHandler(BaseButton button);
+}
+```
+
+⬇️ Generates:
+
+```csharp
+private Observable<BaseButton> _onPressed;
+public Observable<BaseButton> OnPressed =>
+  this.Signal(nameof(Pressed), ref _onPressed);
 ```
 
 ---
 
-## 🛠 Development
+## 🧪 Troubleshooting
 
-To build from source:
-
-```bash
-dotnet build -c Release
-```
-
-To pack for NuGet:
-
-```bash
-dotnet pack -c Release
-```
-
----
-
-## 🙏 Credits
-
-- [Chickensoft](https://github.com/chickensoft-games) for the base interfaces
-- [R3](https://github.com/Cysharp/R3) for a clean observable abstraction
-- [Godot C# community](https://github.com/godotengine/godot) for enabling signal-first development
+- Make sure your classes are marked `partial`
+- Your `[Signal]` delegates **must be declared inside** the class
+- Check `.g.cs` output in `obj/Debug/.../generated/`
+- Use `#nullable enable` if you use nullable types in your `[Signal]` delegate
+- You must rebuild your project to trigger generation
 
 ---
 
 ## 📄 License
 
-MIT
+MIT License
+
+---
+
+## 💡 Bonus Tip
+
+Pair this generator with Chickensoft, R3, Godot, and other LokiCat Godot/.NET packages for fully reactive, event-driven game logic in idiomatic C#.
+
