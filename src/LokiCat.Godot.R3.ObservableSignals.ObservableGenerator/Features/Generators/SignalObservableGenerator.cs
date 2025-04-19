@@ -1,9 +1,9 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
+﻿using System.Linq;
 using LokiCat.GodotNodeInterfaces.Observables.ObservableGenerator.Features.SyntaxHelpers;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LokiCat.GodotNodeInterfaces.Observables.ObservableGenerator.Features.Generators;
+namespace LokiCat.Godot.R3.ObservableSignals.ObservableGenerator.Features.Generators;
 
 [Generator]
 public sealed class SignalObservableGenerator : ISourceGenerator
