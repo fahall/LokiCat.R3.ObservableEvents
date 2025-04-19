@@ -27,6 +27,7 @@
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <AssemblyName>LokiCat.Godot.R3.ObservableSignals.ObservableGenerator</AssemblyName>
         <EmbedAllSources>true</EmbedAllSources>
+        <DisableWorkloadAutoImport>true</DisableWorkloadAutoImport>
         <SourceLinkCreate>true</SourceLinkCreate>
         <AssemblyTitle>LokiCat.Godot.R3.ObservableSignals.ObservableGenerator</AssemblyTitle>
         <Description>Generates AsObservable extensions for GodotNodeInterfaces</Description>

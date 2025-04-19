@@ -1,5 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LokiCat.Godot.R3.ObservableSignals.ObservableGenerator", "LokiCat.Godot.R3.ObservableSignals.ObservableGenerator\LokiCat.Godot.R3.ObservableSignals.ObservableGenerator.csproj", "{83D2EA95-5512-4881-9042-033C0658A55B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,5 +24,9 @@ Global
 		{837AB06C-52CC-43B9-A5A2-9073A566F208}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{837AB06C-52CC-43B9-A5A2-9073A566F208}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{837AB06C-52CC-43B9-A5A2-9073A566F208}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83D2EA95-5512-4881-9042-033C0658A55B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83D2EA95-5512-4881-9042-033C0658A55B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83D2EA95-5512-4881-9042-033C0658A55B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83D2EA95-5512-4881-9042-033C0658A55B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

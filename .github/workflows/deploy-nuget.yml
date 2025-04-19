@@ -37,7 +37,7 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Build project
-        run: dotnet build src/LokiCat.Godot.R3.ObservableSignals.ObservableGenerator/LokiCat.Godot.R3.ObservableSignals.ObservableGenerator.csproj --configuration Release -p:Determinstic=true -p:ContinuousIntegrationBuild=true -p:PathMap=$(pwd)=.
+        run: dotnet build src/LokiCat.Godot.R3.ObservableSignals.ObservableGenerator/LokiCat.Godot.R3.ObservableSignals.ObservableGenerator.csproj --configuration Release -p:Deterministic=true -p:ContinuousIntegrationBuild=true -p:PathMap=`pwd`=.
 
       - name: Pack project
         run: dotnet pack src/LokiCat.Godot.R3.ObservableSignals.ObservableGenerator/LokiCat.Godot.R3.ObservableSignals.ObservableGenerator.csproj --no-build --configuration Release --output "$NuGetDirectory" /p:Version=${{ inputs.version }}
