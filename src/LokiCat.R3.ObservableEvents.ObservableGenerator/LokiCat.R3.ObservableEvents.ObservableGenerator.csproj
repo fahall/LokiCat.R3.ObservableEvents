@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <OutputPath>bin\Release\</OutputPath>
+
+        <PackageId>LokiCat.R3.ObservableEvents</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Alex Hall</Authors>
+        <Description>Generates well-named R3 Observable equivalents for C# events on interfaces.</Description>
+        <PackageTags>r3 roslyn rx observable</PackageTags>
+        <PackageProjectUrl>https://github.com/fahall/LokiCat.R3.ObservableEvents</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/fahall/LokiCat.R3.ObservableEvents.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
+        <AssemblyName>LokiCat.R3.ObservableEvents.ObservableGenerator</AssemblyName>
+        <EmbedAllSources>true</EmbedAllSources>
+        <SourceLinkCreate>true</SourceLinkCreate>
+        <AssemblyTitle>LokiCat.R3.ObservableEvents.ObservableGenerator</AssemblyTitle>
+        <Company>LokiCat</Company>
+        <Product>LokiCat.R3.ObservableEvents.ObservableGenerator</Product>
+        <DebugSymbols>true</DebugSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Nullable>enable</Nullable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(OutputPath)\$(AssemblyName).*" Pack="true" PackagePath="analyzers/dotnet/cs" />
+        <None Include="../icon.png" Pack="true" PackagePath="/" />
+        <None Include="../../README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
+
+</Project>
