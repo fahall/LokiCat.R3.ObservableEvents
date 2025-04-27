@@ -108,7 +108,7 @@ public sealed class EventObservableGenerator : ISourceGenerator
     private static string GenerateObservablePropertyCode(string ns, string className, string eventName, string observableType)
     {
         var fieldName = $"_on{eventName}";
-        var initFlagName = $"_on{eventName}Initialized";
+        var initializedFlag = $"_on{eventName}Initialized";
         var propertyName = $"On{eventName}";
 
         return $$"""
@@ -119,19 +119,24 @@ public sealed class EventObservableGenerator : ISourceGenerator
 
                  namespace {{ns}};
 
-                 public partial interface {{className}} {
+                 public partial class {{className}} {
                      private Observable<{{observableType}}> {{fieldName}} = Observable.Never<{{observableType}}>();
-                     private bool {{initFlagName}};
+                     private bool {{initializedFlag}};
                  
                      public Observable<{{observableType}}> {{propertyName}} {
                          get {
-                             if (!{{initFlagName}}) {
-                                 {{fieldName}} = Event(ref {{fieldName}}, handler => {{eventName}} += handler);
-                                 {{initFlagName}} = true;
+                             if (!{{initializedFlag}}) {
+                                 if (!IsMoqMock(this)) {
+                                     {{fieldName}} = Event(ref {{fieldName}}, handler => {{eventName}} += handler);
+                                 }
+                                 {{initializedFlag}} = true;
                              }
                              return {{fieldName}};
                          }
                      }
+                 
+                     private static bool IsMoqMock(object instance) =>
+                         instance.GetType().Namespace?.StartsWith("Castle.Proxies") == true;
                  }
                  """;
     }
